@@ -10,8 +10,15 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div class="container-fluid">
@@ -19,7 +26,7 @@
       <br />
       <div class="mb-3">
         <label for="FormSistolik" class="form-label fw-bold">Sistolik</label>
-        <input type="text" class="form-control " id="FormSistolik" />
+        <input type="text" class="form-control" id="FormSistolik" />
       </div>
       <div class="mb-3">
         <label for="FormDiastolik" class="form-label fw-bold">Diastolik</label
@@ -51,6 +58,9 @@
           </tr>
         </tbody>
       </table>
+
+      <h2>Chart</h2>
+      <canvas id="sistolikChart"></canvas>
     </div>
 
     <script
@@ -71,7 +81,7 @@
             redirect: "follow",
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ Sistolik: Sistolik, Diastolik: Sistolik }),
+            body: JSON.stringify({ Sistolik: Sistolik, Diastolik: Diastolik }),
           });
 
           const result = await response.json();
@@ -97,6 +107,9 @@
           const data = await response.json();
           const tableBody = document.getElementById("data-table");
 
+          let labels = [];
+          let valuesSistolik = [];
+          let valuesDiastolik = [];
           tableBody.innerHTML = "";
           // Logika Status
 
@@ -106,13 +119,16 @@
             const Diastolik = row[2];
             const Waktu = new Date(row[3]).toLocaleTimeString();
 
+            labels.push(tanggal);
+            valuesSistolik.push(Sistolik);
+            valuesDiastolik.push(Diastolik);
             let status = '<i class="bi bi-emoji-smile-fill text-success"></i>';
             let statusClass = "normal";
             if (Sistolik >= 130) {
               status = '<i class="bi bi-emoji-angry-fill text-succes"></i>';
               statusClass = "danger";
-            }else if(Sistolik >=120){
-                status='<i class="bi bi-emoji-frown-fill text-succes"></i>';
+            } else if (Sistolik >= 120) {
+              status = '<i class="bi bi-emoji-frown-fill text-succes"></i>';
             }
             let tr = document.createElement("tr");
             tr.innerHTML = `
@@ -126,12 +142,52 @@
                     `;
             tableBody.appendChild(tr);
           });
+          createGraphic(labels, valuesSistolik, valuesDiastolik);
         } catch (error) {
           console.error("Gagal Mengambil data", error);
           document.getElementById("data-table").innerHTML =
             "<tr><td cols='4'>Gagal Memuat Data</td></tr>";
         }
       }
+
+      function createGraphic(labels, valuesSistolik, valuesDiastolik) {
+        const ctx = document.getElementById("sistolikChart").getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Tekanan Sistolik",
+                data: valuesSistolik,
+                borderColor: "blue",
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: "blue",
+              },{
+                label: "Tekanan Diastolik",
+                data: valuesDiastolik,
+                borderColor: "yellow",
+                backgroundColor: "rgba(145, 250, 168, 0.2)",
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: "yellow",
+              }
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+            },
+            scales: {
+              y: { beginAtZero: false },
+            },
+          },
+        });
+      }
+
       fetchData();
     </script>
   </body>
