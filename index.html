@@ -24,13 +24,14 @@
       href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <div class="container-fluid">
-      <h1>Blood Presure Record</h1>
+      <h1>Blood Preasure Record</h1>
       <br />
       <div class="mb-3">
-        <label for="FormSistolik" class="form-label fw-bold">Sistolik</label>
+        <label for="FormSistolik" class="form-label fw-bold">Systolic</label>
         <input
           type="text"
           class="form-control"
@@ -39,7 +40,7 @@
         />
       </div>
       <div class="mb-3">
-        <label for="FormDiastolik" class="form-label fw-bold">Diastolik</label
+        <label for="FormDiastolik" class="form-label fw-bold">Diastole</label
         ><input
           type="text"
           class="form-control"
@@ -64,23 +65,23 @@
       </div>
       <br />
 
-      <h2>Record</h2>
+      <h2>Records</h2>
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr>
               <th scope="col">No</th>
-              <th scope="col">Tanggal</th>
-              <th scope="col">Sistolik</th>
-              <th scope="col">Diastolik</th>
-              <th scope="col">Waktu</th>
+              <th scope="col">Dates</th>
+              <th scope="col">Systolic</th>
+              <th scope="col">Diastole</th>
+              <th scope="col">Time</th>
               <th scope="col">Notes</th>
               <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody id="data-table">
             <tr>
-              <td colspan="6">Memuat Data....</td>
+              <td colspan="6">Data Loading....</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +137,7 @@
         </ul>
       </nav>
 
-      <h2>Chart</h2>
+      <h2>Charts</h2>
       <canvas id="sistolikChart"></canvas>
       <br />
     </div>
@@ -173,10 +174,24 @@
 
           const result = await response.json();
           if (result.status === "success") {
-            alert("Berhasil menyimpan data!"); // ✅ Alert berhasil
-            location.reload(); // ✅ Refresh halaman
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Your work has been saved",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() =>{
+              location.reload();
+            });
+            
           } else {
-            alert("Gagal menyimpan data!");
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: "Your work failed to be saved",
+              showConfirmButton: false,
+              timer: 1500,
+            });
           }
         } catch (error) {
           console.error("Error menyimpan data:", error);
@@ -211,7 +226,7 @@
           let notes = target.getAttribute("data-notes"); // Ambil isi Notes
           console.log("Notes:", notes); // Debugging untuk melihat isi Notes
           document.getElementById("modalNotes").textContent =
-            notes || "Tidak ada catatan."; // Isi modal dengan Notes
+            notes || "No Records."; // Isi modal dengan Notes
         }
       });
 
@@ -226,7 +241,7 @@
         paginatedData.forEach((row, index) => {
           const tanggal = new Date(row[0]).toLocaleDateString();
           const Sistolik = parseInt(row[1]);
-          const Diastolik = row[2];
+          const Diastolik = parseInt(row[2]);
           const Waktu = new Date(row[3]).toLocaleTimeString();
           const Notes = row[4];
 
@@ -314,7 +329,7 @@
             labels: labels,
             datasets: [
               {
-                label: "Tekanan Sistolik",
+                label: "Systolic Pressure",
                 data: valueSistolik,
                 borderColor: "blue",
                 backgroundColor: "blue",
@@ -323,7 +338,7 @@
                 pointBackgroundColor: "blue",
               },
               {
-                label: "Tekanan Diastolik",
+                label: "Diastole Pressure",
                 data: valueDiastolik,
                 borderColor: "yellow",
                 backgroundColor: "yellow",
