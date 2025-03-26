@@ -48,11 +48,13 @@
         />
       </div>
       <div class="mb-3">
-        <label for="FormDiastolik" class="form-label fw-bold">Notes</label
-        >
-        <textarea name="" class="form-control"
-        id="FormNotes"
-        placeholder="e.g. medication changes, feeling unweel"></textarea>
+        <label for="FormDiastolik" class="form-label fw-bold">Notes</label>
+        <textarea
+          name=""
+          class="form-control"
+          id="FormNotes"
+          placeholder="e.g. medication changes, feeling unweel"
+        ></textarea>
       </div>
 
       <div class="d-grid gap-2">
@@ -105,7 +107,7 @@
               ></button>
             </div>
             <div class="modal-body">
-              <p id="modalNotes">Isi notes akan muncul di sini.</p>
+              <p id="modalNotes"></p>
             </div>
             <div class="modal-footer">
               <button
@@ -203,6 +205,15 @@
             "<tr><td colspan='6' class='text-center text-danger'>Gagal Memuat Data</td></tr>";
         }
       }
+      document.addEventListener("click", function (event) {
+        let target = event.target.closest("a"); // Pastikan yang diklik adalah link
+        if (target && target.classList.contains("open-modal")) {
+          let notes = target.getAttribute("data-notes"); // Ambil isi Notes
+          console.log("Notes:", notes); // Debugging untuk melihat isi Notes
+          document.getElementById("modalNotes").textContent =
+            notes || "Tidak ada catatan."; // Isi modal dengan Notes
+        }
+      });
 
       function updateTable() {
         const tableBody = document.getElementById("data-table");
@@ -238,7 +249,14 @@
                 <td>${Diastolik}</td>
                 <td>${Waktu}</td>
                 <td>
-                  <p><a class="link-offset-2 link-underline link-underline-opacity-0" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" data-notes ="${Notes}">here...</a></p>
+                   <p><a class="link-offset-2 link-underline link-underline-opacity-0 open-modal" 
+            href="#" 
+            data-bs-toggle="modal" 
+            data-bs-target="#exampleModal" 
+            data-notes="${Notes.replace(/"/g, "&quot;")}">
+        here...
+      </a></p> 
+                  
                   </td>
                 <td class="${statusClass}">${status}</td> 
             `;
